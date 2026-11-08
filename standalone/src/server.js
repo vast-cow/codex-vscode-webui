@@ -7,11 +7,9 @@ const { randomBytes, timingSafeEqual } = require("node:crypto");
 const { WebSocketServer } = require("ws");
 const { pack, unpack } = require("./codec");
 function config(env = process.env) {
-  const host = env.HOST || "127.0.0.1",
+  const host = env.HOST || "0.0.0.0",
     port = Number(env.PORT || 8787),
     tls = !!(env.TLS_CERT && env.TLS_KEY);
-  if (!tls && !["127.0.0.1", "::1", "localhost"].includes(host))
-    throw Error("Non-loopback binding requires TLS_CERT and TLS_KEY");
   if (!env.ACCESS_TOKEN || env.ACCESS_TOKEN.length < 24)
     throw Error("ACCESS_TOKEN must contain at least 24 characters");
   return {
@@ -20,7 +18,7 @@ function config(env = process.env) {
     tls,
     origin:
       env.PUBLIC_ORIGIN ||
-      `${tls ? "https" : "http"}://${host.includes(":") ? "[" + host + "]" : host}:${port}`,
+      `${tls ? "https" : "http"}://${host === "0.0.0.0" ? "127.0.0.1" : host.includes(":") ? "[" + host + "]" : host}:${port}`,
     token: env.ACCESS_TOKEN,
     assets: path.resolve(env.CODEX_ASSETS || "../codex-vscode/extension"),
     workspace: path.resolve(env.CODEX_WORKSPACE || process.cwd()),

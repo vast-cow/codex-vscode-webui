@@ -8,12 +8,12 @@ Run commands from `standalone/`. `npm ci` installs the wrapper dependencies; it 
 | `CODEX_ASSETS` | `../codex-vscode/extension` | Path to the complete matching extension distribution |
 | `CODEX_WORKSPACE` | Current directory | Server working folder; set an absolute project path |
 | `CODEX_STATE` | `.state` | Persistent wrapper settings, state and uploads |
-| `HOST` | `127.0.0.1` | Listening interface |
+| `HOST` | `0.0.0.0` | Listening interface |
 | `PORT` | `8787` | Listening port |
-| `TLS_CERT`, `TLS_KEY` | Unset | PEM certificate and private key; both required for remote binding |
-| `PUBLIC_ORIGIN` | Derived from host and port | Exact browser origin, e.g. `https://codex.example.lan:8787` |
+| `TLS_CERT`, `TLS_KEY` | Unset | PEM certificate and private key; set both to enable HTTPS |
+| `PUBLIC_ORIGIN` | Derived from host and port (wildcard IPv4 uses `127.0.0.1`) | Exact browser origin, e.g. `https://codex.example.lan:8787` |
 
-For LAN/VPN access, set `HOST=0.0.0.0`, both TLS paths, and `PUBLIC_ORIGIN` to the actual HTTPS URL. Use a certificate trusted by every client. HTTP is restricted to loopback. The service checks Host and Origin, authenticates static files and WebSocket upgrades, and uses an HttpOnly SameSite cookie (Secure with TLS). This is a single-user service with full access to that user's working environment, not a multi-tenant sandbox. Do not expose the App Server port or substitute a separately installed CLI.
+The server binds to all IPv4 interfaces by default. For LAN/VPN access, set `PUBLIC_ORIGIN` to the exact browser URL, e.g. `http://192.168.1.10:8787`. To enable HTTPS, set both TLS paths and use an HTTPS origin with a certificate trusted by every client. The service checks Host and Origin, authenticates static files and WebSocket upgrades, and uses an HttpOnly SameSite cookie (Secure with TLS). This is a single-user service with full access to that user's working environment, not a multi-tenant sandbox. Do not expose the App Server port or substitute a separately installed CLI.
 
 Codex authentication is separate from wrapper access. On the server, run the matching binary:
 

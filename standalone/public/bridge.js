@@ -1,4 +1,14 @@
 (() => {
+  // Temporary diagnostic: skip excessive JS modulepreload requests at startup.
+  // Keep CSS stylesheets and actual module imports intact.
+  const originalAppendChild = document.head.appendChild;
+  document.head.appendChild = function (node) {
+    if (node instanceof HTMLLinkElement && node.rel === "modulepreload") {
+      return node;
+    }
+    return originalAppendChild.call(this, node);
+  };
+
   const pack = (v) =>
     v === undefined
       ? ["u"]

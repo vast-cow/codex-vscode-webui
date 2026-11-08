@@ -1,0 +1,1 @@
+{"name":"codex-standalone","private":true,"version":"0.1.0","type":"commonjs","scripts":{"start":"node src/server.js","test":"node --test test/*.test.js","probe":"node src/host.js"},"dependencies":{"ws":"^8.18.0"},"devDependencies":{"playwright":"^1.56.1"}}

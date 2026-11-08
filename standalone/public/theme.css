@@ -1,0 +1,43 @@
+:root {
+  color-scheme: dark;
+  --vscode-font-family: system-ui, sans-serif;
+  --vscode-font-size: 13px;
+  --vscode-editor-font-family: monospace;
+  --vscode-editor-font-size: 13px;
+  --vscode-foreground: #ddd;
+  --vscode-editor-background: #181818;
+  --vscode-sideBar-background: #181818;
+  --vscode-panel-background: #181818;
+  --vscode-descriptionForeground: #999;
+  --vscode-focusBorder: #5893f5;
+  --vscode-input-background: #292929;
+  --vscode-input-foreground: #eee;
+  --vscode-button-background: #2866bc;
+  --vscode-button-foreground: white;
+  --vscode-textLink-foreground: #79b8ff;
+  --vscode-widget-border: #444;
+  --vscode-list-hoverBackground: #303030;
+}
+body {
+  background: #181818;
+  color: #ddd;
+  font-family: var(--vscode-font-family);
+}
+dialog {
+  max-width: 85vw;
+  max-height: 85vh;
+  overflow: auto;
+  background: #222;
+  color: #eee;
+}
+.connection-notice {
+  position: fixed;
+  bottom: 0;
+  inset-inline: 0;
+  z-index: 10000;
+  background: #603d00;
+  padding: 12px;
+}
+button {
+  cursor: pointer;
+}

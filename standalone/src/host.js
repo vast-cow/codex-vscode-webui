@@ -8,6 +8,7 @@ const assets = path.resolve(
 const workspace = path.resolve(process.env.CODEX_WORKSPACE || process.cwd());
 const state = path.resolve(process.env.CODEX_STATE || ".state");
 const send = (message) => process.send?.(pack(message));
+require("./assets").verifyAssets(assets);
 const compat = createCompat({ assets, workspace, state, send });
 const original = Module._load;
 Module._load = function (id, ...rest) {
@@ -19,6 +20,7 @@ let extension;
   await extension.activate(compat.context);
   send({ type: "ready" });
   console.error("Standalone extension activated");
+  if (process.env.CODEX_PROBE === "1") await stop();
 })().catch((e) => {
   console.error(e);
   process.exit(1);
@@ -44,5 +46,6 @@ async function stop() {
     process.exit();
   }
 }
+process.on("disconnect", stop);
 process.on("SIGTERM", stop);
 process.on("SIGINT", stop);

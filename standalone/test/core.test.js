@@ -38,3 +38,20 @@ test("events detach listeners", () => {
   e.fire();
   assert.equal(count, 1);
 });
+test("asset validation stops on an unexpected hash", () => {
+  const { verifyAssets } = require("../src/assets");
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "codex-pin-"));
+  try {
+    fs.writeFileSync(path.join(dir, "asset"), "changed");
+    assert.throws(
+      () =>
+        verifyAssets(dir, {
+          version: "test",
+          sha256: { asset: "0".repeat(64) },
+        }),
+      /Asset mismatch/,
+    );
+  } finally {
+    fs.rmSync(dir, { recursive: true });
+  }
+});

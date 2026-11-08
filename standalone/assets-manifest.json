@@ -1,0 +1,10 @@
+{
+  "version": "26.51021.22027",
+  "sha256": {
+    "package.json": "c3beaee7a1e4a54fd125abeb6e5cae4d15c89a79bc649b29ecc4772a33640bda",
+    "out/extension.js": "a9cc6736cd2c2d22f6cf43fc5763d5f8a873e4f741f522b44a600b1926f4e627",
+    "webview/index.html": "a78f01df941157dbbfda76f333cd83472ba11c4820a46a377e9dad32b7a39670",
+    "bin/linux-x86_64/codex": "e6d386e8822288f6d5f327e966a5a5e1de928de8795bb6149716005a410f38f2",
+    "bin/linux-x86_64/codex-code-mode-host": "e9369405b2308bd5de62cabf4e88ba48334c89717f9ff1b1e05de4ef6ce06a99"
+  }
+}

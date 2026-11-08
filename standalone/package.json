@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node src/server.js",
     "test": "node --test test/*.test.js",
-    "probe": "node src/host.js",
+    "probe": "CODEX_PROBE=1 node src/host.js",
     "format:check": "prettier --check src public test package.json",
     "test:browser": "node test/browser.cjs"
   },

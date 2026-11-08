@@ -55,3 +55,38 @@ test("asset validation stops on an unexpected hash", () => {
     fs.rmSync(dir, { recursive: true });
   }
 });
+test("browser confirmation responses are restricted to the originating view", async () => {
+  const { createCompat } = require("../src/compat");
+  const state = fs.mkdtempSync(path.join(os.tmpdir(), "codex-confirm-"));
+  const sent = [];
+  try {
+    const c = createCompat({
+      assets: path.resolve(__dirname, "../../codex-vscode/extension"),
+      workspace: state,
+      state,
+      send: (m) => sent.push(m),
+    });
+    c.api.window.registerWebviewViewProvider("chatgpt.sidebarView", {
+      resolveWebviewView(view) {
+        view.webview.onDidReceiveMessage(() => {
+          void c.api.window
+            .showWarningMessage("Confirm operation", "Approve")
+            .then((value) => sent.push({ result: value }));
+        });
+      },
+    });
+    await c.open("first");
+    c.receive("first", {});
+    const request = sent.find((m) => m.type === "confirm");
+    assert.equal(request.id, "first");
+    c.respond("second", request.requestId, "Approve");
+    await new Promise(setImmediate);
+    assert(!sent.some((m) => "result" in m));
+    c.respond("first", request.requestId, "Approve");
+    await new Promise(setImmediate);
+    assert.equal(sent.find((m) => "result" in m).result, "Approve");
+    c.close("first");
+  } finally {
+    fs.rmSync(state, { recursive: true });
+  }
+});

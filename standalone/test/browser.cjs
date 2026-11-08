@@ -1,12 +1,47 @@
 // Run against a running service, using its ACCESS_TOKEN and optional BASE_URL.
 const assert = require("node:assert/strict");
 const { chromium } = require("playwright");
+const WebSocket = require("ws");
 const { unpack } = require("../src/codec");
 (async () => {
   const base = process.env.BASE_URL || "http://127.0.0.1:8787";
   const browser = await chromium.launch();
   try {
     const context = await browser.newContext();
+    const anonymous = await browser.newContext();
+    assert.equal(
+      (
+        await anonymous.request.get(
+          base + "/assets/assets/index-e622cadf605d.js",
+        )
+      ).status(),
+      401,
+    );
+    assert.equal(
+      (
+        await anonymous.request.post(base + "/login", {
+          headers: { Origin: "https://invalid.example" },
+          form: { token: process.env.ACCESS_TOKEN },
+        })
+      ).status(),
+      403,
+    );
+    await new Promise((resolve, reject) => {
+      const ws = new WebSocket(base.replace(/^http/, "ws") + "/?id=invalid", {
+        origin: base,
+      });
+      ws.on("unexpected-response", (_, res) => {
+        assert.equal(res.statusCode, 403);
+        res.destroy();
+        resolve();
+      });
+      ws.on("open", () => {
+        ws.close();
+        reject(Error("Unauthenticated socket accepted"));
+      });
+      ws.on("error", () => {});
+    });
+    await anonymous.close();
     const page = await context.newPage();
     const errors = [];
     page.on("pageerror", (e) => errors.push(e.message));
@@ -17,6 +52,7 @@ const { unpack } = require("../src/codec");
     const frames = [];
     // The bridge is created during navigation; instrument subsequent tab for RPC assertions.
     const second = await context.newPage();
+    second.on("pageerror", (e) => errors.push(e.message));
     second.on("websocket", (ws) =>
       ws.on("framereceived", (f) => frames.push(unpack(JSON.parse(f.payload)))),
     );

@@ -74,8 +74,15 @@ function start(c) {
     }
     const wireOut = JSON.stringify(pack(m));
     if (m.id) {
-      const ws = clients.get(m.id)?.ws;
-      if (ws?.readyState === 1) ws.send(wireOut);
+      const entry = clients.get(m.id);
+      if (entry?.ws?.readyState === 1) entry.ws.send(wireOut);
+      else if (entry) {
+        entry.bytes += Buffer.byteLength(wireOut);
+        if (entry.bytes > 32 * 1024 * 1024) {
+          clients.delete(m.id);
+          relay({ type: "close", id: m.id });
+        } else entry.queue.push(wireOut);
+      }
     } else
       for (const { ws } of clients.values())
         if (ws?.readyState === 1) ws.send(wireOut);
@@ -155,7 +162,7 @@ function start(c) {
           return;
         }
         const id = randomBytes(16).toString("hex");
-        clients.set(id, { ws: null });
+        clients.set(id, { ws: null, queue: [], bytes: 0 });
         const html = await new Promise((resolve, reject) => {
           const timer = setTimeout(() => {
             pending.delete(id);
@@ -246,6 +253,9 @@ function start(c) {
     wss.handleUpgrade(req, socket, head, (ws) => {
       const entry = clients.get(id);
       entry.ws = ws;
+      for (const data of entry.queue) ws.send(data);
+      entry.queue = [];
+      entry.bytes = 0;
       ws.on("message", (data) => {
         try {
           const envelope = unpack(JSON.parse(data));
